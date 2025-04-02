@@ -16,7 +16,7 @@ env:
   AWS_STACK_NAME: ${{ vars.AWS_STACK_NAME }}
   BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
   DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
-  EXPIRTAION_DATE: ${{ secrets.EXPIRATION_DATE }}
+  EXPIRATION_DATE: ${{ secrets.EXPIRATION_DATE }}
   FILE_NAME: ${{ secrets.FILE_NAME }}
   MONGO_URI: ${{ secrets.MONGO_URI }},
 
