@@ -6,14 +6,17 @@ import {
     StackProps,
     aws_lambda as lambda,
     aws_logs as logs,
+    CfnOutput,
 } from 'aws-cdk-lib'
+
+import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway'
 
 import { Construct } from 'constructs'
 import { env } from './env'
 
 const ARCHITECTURE = lambda.Architecture.ARM_64
-const LAMBDA_APP_RESOURCE_NAME = 'LambdaApp'
-const NODE_MODULES_RESOURCE_NAME = 'NodeModules'
+const LAMBDA_APP_RESOURCE_NAME = 'Lambda-Cv'
+const NODE_MODULES_RESOURCE_NAME = 'NodeModules-Cv'
 // const RESOURCE_ID = '*'
 const RUNTIME = lambda.Runtime.NODEJS_22_X
 
@@ -45,6 +48,8 @@ class Site extends Stack {
             tracing: lambda.Tracing.ACTIVE,
             retryAttempts: 2,
             environment: {
+                BUCKET_NAME: env.BUCKET_NAME,
+                EXPIRATION_DATE: env.EXPIRATION_DATE,
                 DATABASE_NAME: env.DATABASE_NAME,
                 MONGO_URI: env.MONGO_URI,
             },
@@ -53,6 +58,15 @@ class Site extends Stack {
         new logs.LogGroup(this, 'LogGroup', {
             logGroupName: `/aws/lambda/${lambdaApp.functionName}`,
             retention: logs.RetentionDays.TWO_WEEKS,
+        })
+
+        const api = new LambdaRestApi(this, 'ApiGateway', {
+            handler: lambdaApp,
+            proxy: true,
+        })
+
+        new CfnOutput(this, 'ApiUrl', {
+            value: api.url,
         })
     }
 }

@@ -1,7 +1,6 @@
+import { createSignedUrl } from './actions/createSignedUrl'
 import { finalizeScriptContext, initializeScriptContext } from './context'
-import { log, logError } from './helpers/util/log'
-
-// import { migration } from './helpers/migration'
+import { log } from './helpers/util/log'
 
 export enum ActionType {
     PING = 'PING',
@@ -10,7 +9,7 @@ export enum ActionType {
 }
 
 interface AppConfig {
-    action: ActionType
+    // action: ActionType
     executionId: string
     rawEvent: string | null
     runningLocal: boolean
@@ -19,21 +18,11 @@ interface AppConfig {
 export async function lambda(config: AppConfig) {
     log(`Starting execution: config=${JSON.stringify(config)}.`)
     const context = await initializeScriptContext(config.executionId)
-    // const migrationFunction = 
 
-    switch (config.action) {
-        case ActionType.PING:
-            log('PONG')
-            break
-        // case ActionType.MIGRATION:
-        //     await migration(context, migrationFunction)
-        //     break
-        case ActionType.TEST:
-            log('TEST')
-            break
-        default:
-            logError(`Unknown action: action=${config.action}.`)
-    }
+    await createSignedUrl(
+        config.rawEvent ? JSON.parse(config.rawEvent) : {},
+        context,
+    )
 
     await finalizeScriptContext(context)
 }

@@ -11,9 +11,13 @@ permissions:
 
 env:
   NODE_VERSION: "22.11.0"
+  LAMBDA_NAME: "LambdaApp_CV"
   BUILD_ID: ${{ github.run_number }}
   AWS_STACK_NAME: ${{ vars.AWS_STACK_NAME }}
+  BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
   DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+  EXPIRTAION_DATE: ${{ secrets.EXPIRATION_DATE }}
+  FILE_NAME: ${{ secrets.FILE_NAME }}
   MONGO_URI: ${{ secrets.MONGO_URI }},
 
 jobs:
@@ -41,25 +45,25 @@ jobs:
         run: yarn build
 
       - name: Move build
-        run: mv lambda-app/out/build LambdaApp
+        run: mv lambda-app/out/build ${{ env.LAMBDA_NAME }}
 
       - name: Clean build
-        run: rm LambdaApp/start-local.js
+        run: rm ${{ env.LAMBDA_NAME }}/start-local.js
 
       - name: Setup envs
-        run: echo echo "AWS_STACK_NAME=$AWS_STACK_NAME\nMONGO_URI=$MONGO_URI\nDATABASE_NAME=$DATABASE_NAME" > LambdaApp/.env
+        run: echo "AWS_STACK_NAME=$AWS_STACK_NAME\nMONGO_URI=$MONGO_URI\nDATABASE_NAME=$DATABASE_NAME\nBUCKET_NAME=$BUCKET_NAME\nEXPIRATION_DATE=$EXPIRATION_DATE\nFILE_NAME=$FILE_NAME" > ${{ env.LAMBDA_NAME }}/.env
 
       - name: Setup starter
-        run: mv lambda-app/deployment/lambda-starter.js LambdaApp/lambda-starter.js
+        run: mv lambda-app/deployment/lambda-starter.js ${{ env.LAMBDA_NAME }}/lambda-starter.js
 
       - name: Compress build
-        run: tar -czf LambdaApp.tar LambdaApp
+        run: tar -czf ${{ env.LAMBDA_NAME }}.tar ${{ env.LAMBDA_NAME }}
 
       - name: Save build
         uses: actions/upload-artifact@v4
         with:
-          name: LambdaApp.tar
-          path: LambdaApp.tar
+          name: ${{ env.LAMBDA_NAME }}.tar
+          path: ${{ env.LAMBDA_NAME }}.tar
           retention-days: 1
 
   build-NodeModules:
