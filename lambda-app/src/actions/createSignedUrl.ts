@@ -3,6 +3,8 @@ import { ScriptContext } from '../context'
 import { insertUserLog } from '../client/userLogs'
 import { checkAndUseSecretCode } from '../client/secretCodes'
 import { S3 } from 'aws-sdk'
+import { omit } from '../helpers/util/object'
+import { log } from 'console'
 
 const BUCKET_NAME = process.env.BUCKET_NAME as string
 const FILE_NAME = process.env.FILE_NAME as string
@@ -13,18 +15,18 @@ const EXPIRATION_DATE = process.env.EXPIRATION_DATE
 export const createSignedUrl = async (event: any, context: ScriptContext) => {
     const code = event.queryStringParameters?.code
 
+    await insertUserLog({
+        code,
+        data: omit(event, ['queryStringParameters']),
+        loggedAt: context.now,
+    })
+
     if (!code) {
         return {
             statusCode: 403,
             body: JSON.stringify({ message: 'Code is required.' }),
         }
     }
-
-    await insertUserLog({
-        code,
-        headers: event.headers,
-        loggedAt: context.now,
-    })
 
     const isCodeValid = await checkAndUseSecretCode(code)
 
@@ -52,16 +54,24 @@ export const createSignedUrl = async (event: any, context: ScriptContext) => {
         const s3 = new S3()
         const presignedUrl = await s3.getSignedUrlPromise('getObject', params)
 
+        log({ presignedUrl })
+
         return {
             statusCode: 302,
-            headers: { Location: presignedUrl },
-            body: '',
+            headers: {
+                Location: presignedUrl,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Expose-Headers': 'Location',
+            },
+            body: null,
         }
-    } catch (error) {
+    } catch (error: any) {
         logError(error)
         return {
-            statusCode: 500,
-            body: JSON.stringify({ message: 'Internal server error' }),
+            statusCode: 400,
+            body: JSON.stringify({
+                message: error?.message || 'Internal server error',
+            }),
         }
     }
 }

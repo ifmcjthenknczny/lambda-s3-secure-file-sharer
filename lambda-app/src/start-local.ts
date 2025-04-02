@@ -1,7 +1,7 @@
-import { ActionType, lambda } from './lambda-app'
+import { lambda } from './lambda-app'
 
 const config = {
-    action: ActionType.TEST,
+    // action: ActionType.TEST,
     rawEvent: null,
     executionId: 'local',
     runningLocal: true,
