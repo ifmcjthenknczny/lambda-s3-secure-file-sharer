@@ -22,8 +22,8 @@ env:
   MONGO_URI: ${{ secrets.MONGO_URI }},
 
 jobs:
-  build-LambdaScraper:
-    name: Build LambdaScraper
+  build-LambdaApp:
+    name: Build LambdaApp
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -103,7 +103,7 @@ jobs:
 
   deploy:
     name: Deploy
-    needs: [build-LambdaScraper, build-NodeModules]
+    needs: [build-LambdaApp, build-NodeModules]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

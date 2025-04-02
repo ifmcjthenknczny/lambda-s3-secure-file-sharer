@@ -9,7 +9,7 @@ import {
     CfnOutput,
 } from 'aws-cdk-lib'
 
-import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway'
+// import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway'
 
 import { Construct } from 'constructs'
 import { env } from './env'
@@ -60,13 +60,17 @@ class Site extends Stack {
             retention: logs.RetentionDays.TWO_WEEKS,
         })
 
-        const api = new LambdaRestApi(this, 'ApiGateway', {
-            handler: lambdaApp,
-            proxy: true,
+        const functionUrl = lambdaApp.addFunctionUrl({
+            authType: lambda.FunctionUrlAuthType.NONE,
         })
 
-        new CfnOutput(this, 'ApiUrl', {
-            value: api.url,
+        // const api = new LambdaRestApi(this, 'ApiGateway', {
+        //     handler: lambdaApp,
+        //     proxy: true,
+        // })
+
+        new CfnOutput(this, 'LambdaUrl', {
+            value: functionUrl.url,
         })
     }
 }

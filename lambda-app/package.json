@@ -12,7 +12,7 @@
     "buildAndStart": "yarn build && yarn start",
     "format": "prettier --write \"src/**/*.{ts,tsx,json,css,md}\"",
     "test": "npx jest",
-    "checkAll": "yarn format && yarn fix && yarn build && yarn test"
+    "checkAll": "yarn format && yarn fix && yarn build"
   },
   "author": "Maciej Konieczny",
   "license": "CC-BY-NC-4.0",

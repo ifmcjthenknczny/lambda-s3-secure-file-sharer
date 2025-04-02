@@ -19,10 +19,9 @@ export async function lambda(config: AppConfig) {
     log(`Starting execution: config=${JSON.stringify(config)}.`)
     const context = await initializeScriptContext(config.executionId)
 
-    await createSignedUrl(
-        config.rawEvent ? JSON.parse(config.rawEvent) : {},
-        context,
-    )
+    log({ rawEvent: config.rawEvent })
+
+    await createSignedUrl(config.rawEvent, context)
 
     await finalizeScriptContext(context)
 }

@@ -1,20 +1,17 @@
 import { Collection } from 'mongoose'
-import mongoose from 'mongoose'
+import { mongo } from './mongo'
 
 const collectionName = 'SecretCodes'
 
-const secretCodeCollection = async (db: mongoose.mongo.Db) => {
-    return db!.collection(collectionName) as Collection<
+const secretCodeCollection = async () => {
+    return (await mongo())!.collection(collectionName) as Collection<
         Document & { _id: string }
     >
 }
 
-export const checkAndUseSecretCode = async (
-    db: mongoose.mongo.Db,
-    code: string,
-) => {
+export const checkAndUseSecretCode = async (code: string) => {
     try {
-        const collection = await secretCodeCollection(db)
+        const collection = await secretCodeCollection()
         const result = await collection.updateOne(
             { _id: code },
             { $inc: { useCount: 1 } },
