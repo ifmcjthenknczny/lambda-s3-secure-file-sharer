@@ -1,6 +1,7 @@
 import dotenv from 'dotenv'
 import { log } from './helpers/util/log'
 import mongoose from 'mongoose'
+// import { mongo } from './client/mongo'
 
 dotenv.config()
 
@@ -15,6 +16,7 @@ export async function initializeScriptContext(
     log(`Initializing script context: executionId=${executionId}.`)
 
     const now = new Date()
+    // await mongo();
 
     log('Script context initialized.')
     return {

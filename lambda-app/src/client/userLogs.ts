@@ -3,7 +3,8 @@ import { mongo } from './mongo'
 const collectionName = 'UserLogs'
 
 const userLogCollection = async () => {
-    return (await mongo())!.collection(collectionName)
+    const db = await mongo()
+    return db.collection(collectionName)
 }
 
 export const insertUserLog = async (userLog: Record<string, any>) => {
