@@ -12,6 +12,7 @@ permissions:
 env:
   NODE_VERSION: "22.11.0"
   LAMBDA_NAME: "LambdaApp_CV"
+  NODE_MODULES_NAME: "NodeModules_CV"
   BUILD_ID: ${{ github.run_number }}
   AWS_STACK_NAME: ${{ vars.AWS_STACK_NAME }}
   BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
@@ -87,17 +88,17 @@ jobs:
 
       - name: Move build
         run: |
-          mkdir -p NodeModules/nodejs
-          mv lambda-app/node_modules NodeModules/nodejs/node_modules
+          mkdir -p ${{ env.NODE_MODULES_NAME }}/nodejs
+          mv lambda-app/node_modules ${{ env.NODE_MODULES_NAME }}/nodejs/node_modules
 
       - name: Compress build
-        run: tar -czf NodeModules.tar NodeModules
+        run: tar -czf ${{ env.NODE_MODULES_NAME }}.tar ${{ env.NODE_MODULES_NAME }}
 
       - name: Save build
         uses: actions/upload-artifact@v4
         with:
-          name: NodeModules.tar
-          path: NodeModules.tar
+          name: ${{ env.NODE_MODULES_NAME }}.tar
+          path: ${{ env.NODE_MODULES_NAME }}.tar
           retention-days: 1
 
   deploy:

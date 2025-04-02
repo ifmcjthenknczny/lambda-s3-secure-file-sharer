@@ -15,8 +15,8 @@ import { Construct } from 'constructs'
 import { env } from './env'
 
 const ARCHITECTURE = lambda.Architecture.ARM_64
-const LAMBDA_APP_RESOURCE_NAME = 'Lambda-Cv'
-const NODE_MODULES_RESOURCE_NAME = 'NodeModules-Cv'
+const LAMBDA_APP_RESOURCE_NAME = 'LambdaApp_CV'
+const NODE_MODULES_RESOURCE_NAME = 'NodeModules_CV'
 // const RESOURCE_ID = '*'
 const RUNTIME = lambda.Runtime.NODEJS_22_X
 
