@@ -63,21 +63,3 @@ jobs:
 
       - name: Build code
         run: yarn build
-
-  ci-front:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    defaults:
-      run:
-        working-directory: ./energylandia-stats
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install deps
-        run: yarn install --frozen-lockfile
-
-      - name: Lint code
-        run: yarn lint
-
-      - name: Build code
-        run: yarn build

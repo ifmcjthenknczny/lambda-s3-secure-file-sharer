@@ -36,14 +36,14 @@ export const createSignedUrl = async (event: any, context: ScriptContext) => {
         }
     }
 
-    try {
-        if (context.now > EXPIRATION_DATE) {
-            return {
-                statusCode: 403,
-                body: JSON.stringify({ message: 'Access expired.' }),
-            }
+    if (context.now > EXPIRATION_DATE) {
+        return {
+            statusCode: 403,
+            body: JSON.stringify({ message: 'Access expired.' }),
         }
+    }
 
+    try {
         const params = {
             Bucket: BUCKET_NAME,
             Key: FILE_NAME,
