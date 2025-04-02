@@ -5,11 +5,10 @@ import {
     Stack,
     StackProps,
     aws_lambda as lambda,
+    aws_iam as iam,
     aws_logs as logs,
     CfnOutput,
 } from 'aws-cdk-lib'
-
-// import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway'
 
 import { Construct } from 'constructs'
 import { env } from './env'
@@ -52,8 +51,16 @@ class Site extends Stack {
                 EXPIRATION_DATE: env.EXPIRATION_DATE,
                 DATABASE_NAME: env.DATABASE_NAME,
                 MONGO_URI: env.MONGO_URI,
+                FILE_NAME: env.FILE_NAME,
             },
         })
+
+        lambdaApp.addToRolePolicy(
+            new iam.PolicyStatement({
+                actions: ['s3:GetObject'],
+                resources: [`arn:aws:s3:::${env.BUCKET_NAME}/*`],
+            }),
+        )
 
         new logs.LogGroup(this, 'LogGroup', {
             logGroupName: `/aws/lambda/${lambdaApp.functionName}`,
@@ -63,11 +70,6 @@ class Site extends Stack {
         const functionUrl = lambdaApp.addFunctionUrl({
             authType: lambda.FunctionUrlAuthType.NONE,
         })
-
-        // const api = new LambdaRestApi(this, 'ApiGateway', {
-        //     handler: lambdaApp,
-        //     proxy: true,
-        // })
 
         new CfnOutput(this, 'LambdaUrl', {
             value: functionUrl.url,
