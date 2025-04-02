@@ -10,7 +10,7 @@ const EXPIRATION_DATE = process.env.EXPIRATION_DATE
     : new Date('1970-01-01')
 
 export const createSignedUrl = async (event: any, context: ScriptContext) => {
-    log({ event: JSON.stringify(event) })
+    log({ event })
 
     const code = event.queryStringParameters?.code
 
