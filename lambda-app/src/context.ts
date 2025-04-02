@@ -16,7 +16,6 @@ export async function initializeScriptContext(
     log(`Initializing script context: executionId=${executionId}.`)
 
     const now = new Date()
-    // await mongo();
 
     log('Script context initialized.')
     return {

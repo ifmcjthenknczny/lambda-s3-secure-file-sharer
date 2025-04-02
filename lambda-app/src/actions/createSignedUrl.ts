@@ -52,6 +52,7 @@ export const createSignedUrl = async (event: any, context: ScriptContext) => {
         }
 
         const s3 = new S3()
+        log({ params })
         const presignedUrl = await s3.getSignedUrlPromise('getObject', params)
 
         log({ presignedUrl })
