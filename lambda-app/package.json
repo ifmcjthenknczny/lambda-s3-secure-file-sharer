@@ -1,5 +1,5 @@
 {
-  "name": "lambda-app",
+  "name": "lambda-serve-s3-url",
   "version": "1.0.0",
   "description": "",
   "main": "build/index.js",

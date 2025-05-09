@@ -8,6 +8,8 @@ import dayjs from 'dayjs'
 
 const BUCKET_NAME = process.env.BUCKET_NAME as string
 
+// TODO: build a separate function to check code validity
+
 export const createSignedUrl = async (event: any, context: ScriptContext) => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const code: string | undefined = event.queryStringParameters?.code
@@ -41,11 +43,18 @@ export const createSignedUrl = async (event: any, context: ScriptContext) => {
         }
     }
 
+    if (dbCode.useLimit && dbCode.useCount || 0 >= dbCode.useLimit) {
+        return {
+            statusCode: 403,
+            body: JSON.stringify({ message: 'Access expired.' }),
+        }
+    }
+
     try {
         const params = {
             Bucket: BUCKET_NAME,
             Key: dbCode.fileName,
-            Expires: 60,
+            Expires: 30,
         }
 
         const s3 = new S3()

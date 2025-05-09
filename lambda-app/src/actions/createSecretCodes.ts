@@ -8,6 +8,7 @@ export type CreateSecretCodesOptions = {
     daysValid: number
     fileName: string
     count: number
+    useLimit?: number
 }
 
 export const createSecretCodes = async ({db}: ScriptContext, options: CreateSecretCodesOptions) => {
@@ -18,9 +19,10 @@ export const createSecretCodes = async ({db}: ScriptContext, options: CreateSecr
         codes.push({
             _id: uuid(),
             daysValid: options.daysValid,
-            fileName: options.fileName
+            fileName: options.fileName,
+            ...(options.useLimit && {useLimit: options.useLimit})
         })
-    }
+}
 
     const CHUNK_SIZE = 10
 

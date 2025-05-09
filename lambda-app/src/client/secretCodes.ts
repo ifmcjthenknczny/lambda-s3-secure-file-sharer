@@ -9,6 +9,8 @@ export type SecretCode = {
     fileName: string
     createdAt: Date
     expiresAt: Date
+    useLimit: number
+    useCount: number
 }
 
 export type InsertSecretCodeParameters = Omit<
@@ -51,6 +53,7 @@ export const insertSecretCode = async (db: mongoose.mongo.Db, {
     _id,
     fileName,
     daysValid,
+    useLimit
 }: InsertSecretCodeParameters) => {
     try {
         const collection = secretCodeCollection(db)
@@ -58,7 +61,8 @@ export const insertSecretCode = async (db: mongoose.mongo.Db, {
             _id,
             fileName,
             createdAt: dayjs().toDate(),
-            expiresAt: dayjs().add(daysValid, 'days').toDate()
+            expiresAt: dayjs().add(daysValid, 'days').toDate(),
+            ...(useLimit && {useLimit})
         } as SecretCode)
     } catch (error: any) {
         throw new Error(`Failed to insert code validity. ${error.message}`)

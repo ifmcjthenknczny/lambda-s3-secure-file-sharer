@@ -5,7 +5,8 @@ const config = {
     rawEvent: {
         count: 50,
         fileName: 'cv.pdf',
-        daysValid: 30
+        daysValid: 30,
+        useLimit: 10
     },
     executionId: 'local',
     runningLocal: true,

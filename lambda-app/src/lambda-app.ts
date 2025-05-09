@@ -24,7 +24,6 @@ export async function lambda(config: AppConfig) {
 
     if (config.action === 'CREATE_SECRET_CODES') {
         const options = createSecretCodesRawEventSchema.parse(config.rawEvent) as CreateSecretCodesOptions
-        // await createSecretCodes(context, options)
         await createSecretCodes(context, options)
         await finalizeScriptContext(context)
         return
