@@ -1,15 +1,14 @@
-import { mongo } from './mongo'
+import mongoose from "mongoose"
 
 const collectionName = 'UserLogs'
 
-const userLogCollection = async () => {
-    const db = await mongo()
+const userLogCollection = (db: mongoose.mongo.Db) => {
     return db.collection(collectionName)
 }
 
-export const insertUserLog = async (userLog: Record<string, any>) => {
+export const insertUserLog = async (db: mongoose.mongo.Db, userLog: Record<string, any>) => {
     try {
-        const collection = await userLogCollection()
+        const collection = userLogCollection(db)
         const id = await collection.insertOne(userLog)
         return id
     } catch (error: any) {

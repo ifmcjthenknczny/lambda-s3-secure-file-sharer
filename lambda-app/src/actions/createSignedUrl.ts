@@ -9,9 +9,10 @@ import dayjs from 'dayjs'
 const BUCKET_NAME = process.env.BUCKET_NAME as string
 
 export const createSignedUrl = async (event: any, context: ScriptContext) => {
-    const code = event.queryStringParameters?.code
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const code: string | undefined = event.queryStringParameters?.code
 
-    await insertUserLog({
+    await insertUserLog(context.db, {
         code,
         data: omit(event, ['queryStringParameters']),
         loggedAt: context.now,
@@ -24,7 +25,7 @@ export const createSignedUrl = async (event: any, context: ScriptContext) => {
         }
     }
 
-    const dbCode = await findSecretCode(code)
+    const dbCode = await findSecretCode(context.db, code)
 
     if (!dbCode) {
         return {
@@ -50,7 +51,7 @@ export const createSignedUrl = async (event: any, context: ScriptContext) => {
         const s3 = new S3()
         const presignedUrl = await s3.getSignedUrlPromise('getObject', params)
         
-        await useSecretCode(code)
+        await useSecretCode(context.db, code)
 
         return {
             statusCode: 302,
@@ -66,6 +67,7 @@ export const createSignedUrl = async (event: any, context: ScriptContext) => {
         return {
             statusCode: 400,
             body: JSON.stringify({
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 message: error?.message || 'Internal server error',
             }),
         }

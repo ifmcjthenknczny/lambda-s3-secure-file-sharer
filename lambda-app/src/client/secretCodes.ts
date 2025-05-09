@@ -1,6 +1,6 @@
-import { Collection } from 'mongoose'
-import { mongo } from './mongo'
+import mongoose, { Collection } from 'mongoose'
 import { CreateSecretCodesOptions } from '../actions/createSecretCodes'
+import dayjs from 'dayjs'
 
 const collectionName = 'SecretCodes'
 
@@ -16,15 +16,15 @@ export type InsertSecretCodeParameters = Omit<
     'count'
 > & { _id: string }
 
-const secretCodeCollection = async () => {
-    return (await mongo())!.collection(collectionName) as Collection<
+const secretCodeCollection = (db: mongoose.mongo.Db) => {
+    return db.collection(collectionName) as Collection<
         SecretCode
     >
 }
 
-export const findSecretCode = async (code: string) => {
+export const findSecretCode = async (db: mongoose.mongo.Db, code: string) => {
 try {
-        const collection = await secretCodeCollection()
+        const collection = secretCodeCollection(db)
         const result = await collection.findOne(
             { _id: code },
         )
@@ -34,9 +34,9 @@ try {
     }
 }
 
-export const useSecretCode = async (code: string) => {
+export const useSecretCode = async (db: mongoose.mongo.Db, code: string) => {
     try {
-        const collection = await secretCodeCollection()
+        const collection = secretCodeCollection(db)
         const result = await collection.updateOne(
             { _id: code },
             { $inc: { useCount: 1 } },
@@ -47,20 +47,20 @@ export const useSecretCode = async (code: string) => {
     }
 }
 
-export const insertSecretCode = async ({
+export const insertSecretCode = async (db: mongoose.mongo.Db, {
     _id,
     fileName,
-    expiresAt,
+    daysValid,
 }: InsertSecretCodeParameters) => {
     try {
-        const collection = await secretCodeCollection()
+        const collection = secretCodeCollection(db)
         await collection.insertOne({
             _id,
             fileName,
-            createdAt: new Date(),
-            expiresAt: new Date(expiresAt),
+            createdAt: dayjs().toDate(),
+            expiresAt: dayjs().add(daysValid, 'days').toDate()
         } as SecretCode)
     } catch (error: any) {
-        throw new Error(`Failed to check code validity. ${error.message}`)
+        throw new Error(`Failed to insert code validity. ${error.message}`)
     }
 }
