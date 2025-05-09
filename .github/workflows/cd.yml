@@ -17,8 +17,6 @@ env:
   AWS_STACK_NAME: ${{ vars.AWS_STACK_NAME }}
   BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
   DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
-  EXPIRATION_DATE: ${{ secrets.EXPIRATION_DATE }}
-  FILE_NAME: ${{ secrets.FILE_NAME }}
   MONGO_URI: ${{ secrets.MONGO_URI }},
 
 jobs:
@@ -52,7 +50,7 @@ jobs:
         run: rm ${{ env.LAMBDA_NAME }}/start-local.js
 
       - name: Setup envs
-        run: echo "AWS_STACK_NAME=$AWS_STACK_NAME\nMONGO_URI=$MONGO_URI\nDATABASE_NAME=$DATABASE_NAME\nBUCKET_NAME=$BUCKET_NAME\nEXPIRATION_DATE=$EXPIRATION_DATE\nFILE_NAME=$FILE_NAME" > ${{ env.LAMBDA_NAME }}/.env
+        run: echo "AWS_STACK_NAME=$AWS_STACK_NAME\nMONGO_URI=$MONGO_URI\nDATABASE_NAME=$DATABASE_NAME\nBUCKET_NAME=$BUCKET_NAME" > ${{ env.LAMBDA_NAME }}/.env
 
       - name: Setup starter
         run: mv lambda-app/deployment/lambda-starter.js ${{ env.LAMBDA_NAME }}/lambda-starter.js

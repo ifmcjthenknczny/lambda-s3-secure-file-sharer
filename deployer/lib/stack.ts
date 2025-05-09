@@ -48,10 +48,8 @@ class Site extends Stack {
             retryAttempts: 2,
             environment: {
                 BUCKET_NAME: env.BUCKET_NAME,
-                EXPIRATION_DATE: env.EXPIRATION_DATE,
                 DATABASE_NAME: env.DATABASE_NAME,
                 MONGO_URI: env.MONGO_URI,
-                FILE_NAME: env.FILE_NAME,
             },
         })
 

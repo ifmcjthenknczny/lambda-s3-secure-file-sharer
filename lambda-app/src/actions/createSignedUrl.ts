@@ -1,16 +1,12 @@
 import { logError } from '../helpers/util/log'
 import { ScriptContext } from '../context'
 import { insertUserLog } from '../client/userLogs'
-import { checkAndUseSecretCode } from '../client/secretCodes'
+import { findSecretCode, useSecretCode } from '../client/secretCodes'
 import { S3 } from 'aws-sdk'
 import { omit } from '../helpers/util/object'
-import { log } from 'console'
+import dayjs from 'dayjs'
 
 const BUCKET_NAME = process.env.BUCKET_NAME as string
-const FILE_NAME = process.env.FILE_NAME as string
-const EXPIRATION_DATE = process.env.EXPIRATION_DATE
-    ? new Date(process.env.EXPIRATION_DATE)
-    : new Date('1970-01-01')
 
 export const createSignedUrl = async (event: any, context: ScriptContext) => {
     const code = event.queryStringParameters?.code
@@ -28,16 +24,16 @@ export const createSignedUrl = async (event: any, context: ScriptContext) => {
         }
     }
 
-    const isCodeValid = await checkAndUseSecretCode(code)
+    const dbCode = await findSecretCode(code)
 
-    if (!isCodeValid) {
+    if (!dbCode) {
         return {
             statusCode: 403,
             body: JSON.stringify({ message: 'Code is invalid.' }),
         }
     }
 
-    if (context.now > EXPIRATION_DATE) {
+    if (dayjs(context.now).isAfter(dayjs(dbCode.expiresAt))) {
         return {
             statusCode: 403,
             body: JSON.stringify({ message: 'Access expired.' }),
@@ -47,14 +43,14 @@ export const createSignedUrl = async (event: any, context: ScriptContext) => {
     try {
         const params = {
             Bucket: BUCKET_NAME,
-            Key: FILE_NAME,
+            Key: dbCode.fileName,
             Expires: 60,
         }
 
         const s3 = new S3()
         const presignedUrl = await s3.getSignedUrlPromise('getObject', params)
-
-        log({ presignedUrl })
+        
+        await useSecretCode(code)
 
         return {
             statusCode: 302,

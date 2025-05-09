@@ -14,8 +14,6 @@ export const env = createEnv({
         AWS_STACK_NAME: z.string().min(1),
         BUCKET_NAME: z.string().min(1),
         DATABASE_NAME: z.string().min(1),
-        EXPIRATION_DATE: z.string().min(1),
-        FILE_NAME: z.string().min(1),
         MONGO_URI: z.string().min(1),
     },
 
@@ -25,8 +23,6 @@ export const env = createEnv({
         AWS_STACK_NAME: process.env.AWS_STACK_NAME,
         BUCKET_NAME: process.env.BUCKET_NAME,
         DATABASE_NAME: process.env.DATABASE_NAME,
-        EXPIRATION_DATE: process.env.EXPIRATION_DATE,
-        FILE_NAME: process.env.FILE_NAME,
         MONGO_URI: process.env.MONGO_URI,
     },
 })
