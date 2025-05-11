@@ -1,5 +1,7 @@
 # Lambda S3 Secure File Sharer
 
+> Want an easy way to share S3 files, but still control who gets in and for time longer than 12 hours?
+
 A serverless application built with AWS Lambda, S3 and MongoDB to generate time-limited secret codes for accessing files stored in S3 via pre-signed URLs. The infrastructure is managed using AWS CDK, and CI/CD is implemented with GitHub Actions.
 
 ## Overview
