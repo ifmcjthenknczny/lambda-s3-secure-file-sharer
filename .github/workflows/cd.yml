@@ -50,7 +50,13 @@ jobs:
         run: rm ${{ env.LAMBDA_NAME }}/start-local.js
 
       - name: Setup envs
-        run: echo "AWS_STACK_NAME=$AWS_STACK_NAME\nMONGO_URI=$MONGO_URI\nDATABASE_NAME=$DATABASE_NAME\nBUCKET_NAME=$BUCKET_NAME" > ${{ env.LAMBDA_NAME }}/.env
+        run: |
+          env_vars=("AWS_STACK_NAME" "MONGO_URI" "DATABASE_NAME" "BUCKET_NAME")
+
+          for var in "${env_vars[@]}"; do
+            echo "::add-mask::${!var}"
+            echo "$var=${!var}" >> "$LAMBDA_NAME/.env"
+          done
 
       - name: Setup starter
         run: mv lambda-app/deployment/lambda-starter.js ${{ env.LAMBDA_NAME }}/lambda-starter.js

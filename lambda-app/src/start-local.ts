@@ -6,7 +6,7 @@ const config = {
         count: 10,
         fileName: 'file.pdf',
         daysValid: 75,
-        useLimit: 10
+        useLimit: 10,
     },
     executionId: 'local',
     runningLocal: true,

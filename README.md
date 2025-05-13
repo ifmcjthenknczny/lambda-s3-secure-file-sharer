@@ -11,6 +11,7 @@ This project provides a secure way to share files. It allows authorized users to
 ## Features
 
 * **Secret Code Generation:** Creates unique, time-limited secret codes (UUIDs).
+* **Disable Secret Codes:** Ability to manually disable certain codes by code or tag.
 * **Secure Storage:** Stores secret codes and their metadata (associated filename, validity period) in MongoDB.
 * **Pre-signed URL Access:** Provides access to S3 files via temporary, dynamically-generated secure pre-signed URLs.
 * **Code Validation:** Validates secret codes for existence and expiry and use count.
@@ -94,11 +95,9 @@ The application requires the following environment variables to be set (typicall
 
 These are validated at runtime using `@t3-oss/env-core`.
 
-## Core Functionality
+## Actions
 
-### Actions
-
-#### 1. Create Secret Codes
+### Create Secret Codes
 
 * **Trigger:** Invoke the Lambda function with the following `AppConfig` structure:
     ```json
@@ -109,18 +108,41 @@ These are validated at runtime using `@t3-oss/env-core`.
             "daysValid": 7,
             "fileName": "path/to/your/file.pdf",
             "count": 10,
-            "useLimit": 10
+            "useLimit": 10,
+            "tag": "secret-file"
         },
         "runningLocal": true
     }
     ```
 * **Functionality (`src/actions/createSecretCodes.ts`):**
-    * Parses the `rawEvent` using `createSecretCodesRawEventSchema`.
+    * Parses the `rawEvent` using `createSecretCodesSchema`.
     * Generates the specified `count` of unique secret codes (UUIDs).
     * For each code, it stores an entry in the `SecretCodes` MongoDB collection, including the `_id` (the code itself), `fileName`, `useLimit` (optional), `createdAt`, and `expiresAt` (calculated using `daysValid`).
     * Codes are inserted into the database in chunks for efficiency.
 
-#### 2. Create Signed URL (Access File)
+### Disable Secret Codes
+
+* **Trigger:** Invoke the Lambda function with the following `AppConfig` structure:
+    ```json
+    {
+        "action": "DISABLE_SECRET_CODES",
+        "executionId": "some-unique-id",
+        "rawEvent": {
+            "tags": ["secret-file", "a-bit-less-secret-file-but-still"],
+            "codes": ["df83d390-bfc5-4a32-8322-7913927f0bf8", "36691982-fc9f-4d42-bb23-fddef15445f4"]
+        },
+        "runningLocal": true
+    }
+    ```
+* **Functionality (`src/actions/disableSecretCodes.ts`):**
+    * Parses the `rawEvent` using `disableSecretCodesSchema`.
+    * Validates that at least one of the two properties (`codes` or `tags`) is provided.
+    * Invokes `manuallyDisableSecretCodes`, which updates all matching documents in the `SecretCodes` MongoDB collection by setting `manuallyDisabled: true` for:
+        - any document with `_id` in the `codes` array
+        - or any document with `tag` in the `tags` array.
+    * Logs a success message showing how many codes were successfully disabled.
+
+### Create Signed URL (Access File)
 
 * **Trigger:** This is the default action when the Lambda Function URL is accessed via a GET request.
 * **URL Format:** `GET <LambdaFunctionUrl>?code=<YOUR_SECRET_CODE>`
@@ -131,9 +153,10 @@ These are validated at runtime using `@t3-oss/env-core`.
     2.  Logs the access attempt to the `UserLogs` collection in MongoDB.
     3.  Validates the code:
         * If no code is provided, returns a `403 Forbidden` error.
-        * Searches for the code in the `SecretCodes` collection. If not found, returns `403 Forbidden`.
-        * Checks if the code has expired. If expired, returns `403 Forbidden`.
-        * Checks if use count of the code would be exceeded. If yes, returns `403 Forbidden`.
+        * Searches for the code in the `SecretCodes` collection.
+        * Checks if the code has expired.
+        * Checks if use count of the code would be exceeded.
+        * Checks if code is not manually disabled.
     4.  If the code is valid and not expired:
         * Generates a short-lived (60 seconds) pre-signed S3 URL for the `fileName` associated with the code.
         * Calls `useSecretCode` to mark the code as used (this function attempts to increment a `useCount` field in the database).
@@ -142,9 +165,7 @@ These are validated at runtime using `@t3-oss/env-core`.
 
 ## Database Models (MongoDB)
 
-Collections are managed in `src/client/`.
-
-### 1. `SecretCodes`
+### `SecretCodes`
 
 Stores information about each generated secret code.
 
@@ -154,8 +175,9 @@ Stores information about each generated secret code.
 * `expiresAt: Date`: Timestamp of when the code will expire.
 * `useLimit: number`: Limit of uses of given secret code.
 * `useCount: number`: If code is used, this field is incremented.
+* `manuallyDisabled: boolean`: Information whether code has been manually disabled by user.
 
-### 2. `UserLogs`
+### `UserLogs`
 
 Stores logs of attempts to use secret codes.
 

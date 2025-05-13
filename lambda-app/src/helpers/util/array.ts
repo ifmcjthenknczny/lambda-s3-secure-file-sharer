@@ -7,17 +7,13 @@ export function chunkify<T>(array: T[], chunkSize: number): T[][] {
 }
 
 export const range = (start: number, end: number, step = 1): number[] => {
-  if (step === 0) throw new Error('Step cannot be 0');
-  const result: number[] = [];
-  const ascending = step > 0;
+    if (step === 0) throw new Error('Step cannot be 0')
+    const result: number[] = []
+    const ascending = step > 0
 
-  for (
-    let i = start;
-    ascending ? i < end : i > end;
-    i += step
-  ) {
-    result.push(i);
-  }
+    for (let i = start; ascending ? i < end : i > end; i += step) {
+        result.push(i)
+    }
 
-  return result;
-};
+    return result
+}
